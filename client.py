@@ -35,13 +35,16 @@ def server_shutdown(server):
     server.close()
 
 
-info = dict()
-info["os_info"] = u.get_info()
-info["disk_info"] = u.get_disk_info()
-info["virtual_memory_info"] = u.get_virtual_memory_info()
-info["cpu_usage"] = u.psutil.cpu_percent()
-info["processes"] = u.get_process_info()
-info["timestamp"] = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+def get_info():
+    info = dict()
+    info["os_info"] = u.get_info()
+    info["disk_info"] = u.get_disk_info()
+    info["virtual_memory_info"] = u.get_virtual_memory_info()
+    info["cpu_usage"] = u.psutil.cpu_percent()
+    info["processes"] = u.get_process_info()
+    info["timestamp"] = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    return info
+
 
 HOST, PORT = "localhost", 8888
 if args["address"]:
@@ -51,6 +54,7 @@ if args["port"]:
 
 
 def connect():
+    new_info = get_info()
     global ON
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -60,8 +64,8 @@ def connect():
         ON = False
     else:
         try:
-            send_msg(sock, info)
-        except ConnectionResetError:
+            send_msg(sock, new_info)
+        except socket.error.ConnectionResetError:
             print("Connection lost!")
         except:
             print("An error has occurred!")
@@ -73,4 +77,4 @@ while ON:
     connect()
     t = datetime.datetime.now().strftime('%H:%M:%S')
     print(str(t) + "\n")
-    sleep(2 * H)
+    sleep(10 * M)
